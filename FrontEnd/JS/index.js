@@ -24,7 +24,7 @@ function createCard(article) {
         figureElement.setAttribute("data-id", article[i].id);
 
         //DOM pour rattacher les éléments au html
-        document.querySelector(".gallery").appendChild(figureElement);
+        document.querySelector(".gallery").appendChild(figureElement);F
         figureElement.appendChild(imageElement);
         figureElement.appendChild(figcaptionElement);
     }
