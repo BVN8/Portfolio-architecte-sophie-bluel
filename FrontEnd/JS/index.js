@@ -24,7 +24,7 @@ function createCard(article) {
         figureElement.setAttribute("data-id", article[i].id);
 
         //DOM pour rattacher les éléments au html
-        document.querySelector(".gallery").appendChild(figureElement);F
+        document.querySelector(".gallery").appendChild(figureElement); F
         figureElement.appendChild(imageElement);
         figureElement.appendChild(figcaptionElement);
     }
@@ -92,10 +92,8 @@ if (token != undefined) {
 }
 //Fonction qui fait disparaître les éléments de modification de la page
 function userDisconnected() {
-    const modifier = document.getElementsByClassName("modifier");
-    for (i = 0; i < modifier.length; i++) {
-        modifier[i].style.display = "none";
-    }
+    const modifier = document.getElementById("sect-modale");
+        modifier.style.display = "none";
 };
 //Fonction qui fait disparaître les filtres
 function filtreNone() {
@@ -129,31 +127,30 @@ const stopPropagation = function (e) {
     e.stopPropagation();
 };
 
-document.querySelectorAll(".modifier").forEach(a => {
+document.querySelectorAll(".openmodale").forEach(a => {
     a.addEventListener("click", openModale);
 });
 
-//Fonction pour créer les cartes de la galerie dans la modale
-function createModaleCard(article) {
+
+//Fonction pour créer les cartes de la galerie et leur différentes caractéristiques 
+function createCard(article) {
+    const galery = document.querySelector(".gallery");
+    galery.innerHTML = "";
     for (let i = 0; i < article.length; i++) {
         const figureElement = document.createElement("figure");
-        const imageElement = document.createElement("img");
-        imageElement.src = article[i].imageUrl;
-        imageElement.setAttribute("crossorigin", "anonymous"); //(pour le bug)
-        imageElement.setAttribute("alt", article[i].title);
-        const trashIcon = document.createElement("i");
-        trashIcon.classList.add("fa-solid", "fa-trash", "icone", "trash");
-        const arrowMoveIcon = document.createElement("i");
-        arrowMoveIcon.classList.add("fa-solid", "fa-arrows-up-down-left-right", "icone", "arrow");
-        const figcaptionElement = document.createElement("figcaption");
-        figcaptionElement.innerText = "éditer";
         figureElement.setAttribute("data-id", article[i].id);
-        //DOM pour rattacher les éléments au html
-        document.querySelector(".modale-gallery").appendChild(figureElement);
+        const imageElement = document.createElement("img");
+        const figcaptionElement = document.createElement("figcaption");
+        imageElement.src = article[i].imageUrl;
+        //  imageElement.setAttribute("crossorigin", "anonymous") 
+        //pour le bug       
+        // imageElement.setAttribute("alt", article[i].title);       
+        imageElement.alt = article[i].title;
+        figcaptionElement.textContent = article[i].title;
+        //DOM pour rattacher les éléments au html        
         figureElement.appendChild(imageElement);
         figureElement.appendChild(figcaptionElement);
-        figureElement.appendChild(trashIcon);
-        figureElement.appendChild(arrowMoveIcon);
+        galery.appendChild(figureElement);
     }
 };
 
@@ -251,10 +248,12 @@ validButton.addEventListener("click", (e) => {
     updateButtonColor();
 
     //Création de formData pour envoyer les données de la nouvelle image
-    const formData = new FormData();
-    formData.append("image", newImage.files[0]);
-    formData.append("title", newTitleImage.value);
-    formData.append("category", newObjetImage.value);
+    const formData = {
+        image:newImage.files[0],
+        title:newTitleImage.value,
+        category:parseInt(newObjetImage.value)
+    };
+console.log(formData);
 
     fetch("http://localhost:5678/api/works", {
         method: "POST",
