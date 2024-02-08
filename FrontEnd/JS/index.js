@@ -6,7 +6,6 @@ async function fetchCard() {
     const response = await fetch("http://localhost:5678/api/works");
     photoFiltre = await response.json();
     createCard(photoFiltre);
-    createModaleCard(photoFiltre);
 }
 fetchCard();
 
@@ -93,7 +92,7 @@ if (token != undefined) {
 //Fonction qui fait disparaître les éléments de modification de la page
 function userDisconnected() {
     const modifier = document.getElementById("sect-modale");
-        modifier.style.display = "none";
+    modifier.style.display = "none";
 };
 //Fonction qui fait disparaître les filtres
 function filtreNone() {
@@ -186,20 +185,36 @@ const newImagePreview = document.getElementById("image-preview");
 const newObjetImage = document.getElementById("objet");
 const newTitleImage = document.getElementById("title-image");
 const validButton = document.getElementById("bouton-valider");
+
 //Fonction pour selectionner l'image
-newImage.addEventListener("change", function () {
-    const selectedFile = newImage.files[0];
-    if (selectedFile) {
-        const imgUrl = URL.createObjectURL(selectedFile);
-        const img = document.createElement("img");
-        img.src = imgUrl;
-        newImagePreview.innerHTML = "";
-        newImagePreview.appendChild(img);
-        //supprime les autres éléments pour qu'il n'y ait que l'image
-        const sendImage = document.getElementsByClassName("send-image");
-        Array.from(sendImage).forEach(e => { e.style.display = "none" });
-        updateButtonColor();
+let loadedFile = null;
+function filesManager(files) {
+    var file = files[0];
+
+    if (file) {
+        loadedFile = file;
+
+        // preview de l'image
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var loadedImage = new Image();
+            loadedImage.src = e.target.result;
+            loadedImage.style.width = "129px";
+            loadedImage.style.height = "169px";
+
+            newImagePreview.innerHTML = "";
+            newImagePreview.appendChild(loadedImage);
+        };
+
+        reader.readAsDataURL(file);
+    } else {
+        loadedFile = null;
+        alert("Veuillez sélectionner un fichier image valide");
     }
+}
+
+newImage.addEventListener("change", function () {
+    filesManager(newImage.files)
 });
 
 //Fonction du changement de couleur du bouton valider quand image et titre sont présents
@@ -248,12 +263,10 @@ validButton.addEventListener("click", (e) => {
     updateButtonColor();
 
     //Création de formData pour envoyer les données de la nouvelle image
-    const formData = {
-        image:newImage.files[0],
-        title:newTitleImage.value,
-        category:parseInt(newObjetImage.value)
-    };
-console.log(formData);
+    const formData = new FormData()
+    formData.append('image',loadedFile)
+    formData.append('title',newTitleImage.value)
+    formData.append('category',parseInt(newObjetImage.value))
 
     fetch("http://localhost:5678/api/works", {
         method: "POST",
