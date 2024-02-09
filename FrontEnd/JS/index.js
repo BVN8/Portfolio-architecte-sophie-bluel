@@ -1,4 +1,3 @@
-//Code js de la page index.html
 
 //Fonction fetch qui envoie un requête pour récupèrer les données du backend via l'API
 let photoFiltre = []
@@ -6,6 +5,7 @@ async function fetchCard() {
     const response = await fetch("http://localhost:5678/api/works");
     photoFiltre = await response.json();
     createCard(photoFiltre);
+    createModaleCard(photoFiltre);
 }
 fetchCard();
 
@@ -23,7 +23,7 @@ function createCard(article) {
         figureElement.setAttribute("data-id", article[i].id);
 
         //DOM pour rattacher les éléments au html
-        document.querySelector(".gallery").appendChild(figureElement); F
+        document.querySelector(".gallery").appendChild(figureElement);
         figureElement.appendChild(imageElement);
         figureElement.appendChild(figcaptionElement);
     }
@@ -91,8 +91,10 @@ if (token != undefined) {
 }
 //Fonction qui fait disparaître les éléments de modification de la page
 function userDisconnected() {
-    const modifier = document.getElementById("sect-modale");
-    modifier.style.display = "none";
+    const modifier = document.getElementsByClassName("modifier");
+    for (i = 0; i < modifier.length; i++) {
+        modifier[i].style.display = "none";
+    }
 };
 //Fonction qui fait disparaître les filtres
 function filtreNone() {
@@ -126,30 +128,30 @@ const stopPropagation = function (e) {
     e.stopPropagation();
 };
 
-document.querySelectorAll(".openmodale").forEach(a => {
+document.querySelectorAll(".modifier").forEach(a => {
     a.addEventListener("click", openModale);
 });
 
-
-//Fonction pour créer les cartes de la galerie et leur différentes caractéristiques 
-function createCard(article) {
-    const galery = document.querySelector(".gallery");
-    galery.innerHTML = "";
+//Fonction pour créer les cartes de la galerie dans la modale
+function createModaleCard(article) {
     for (let i = 0; i < article.length; i++) {
         const figureElement = document.createElement("figure");
-        figureElement.setAttribute("data-id", article[i].id);
         const imageElement = document.createElement("img");
-        const figcaptionElement = document.createElement("figcaption");
         imageElement.src = article[i].imageUrl;
-        //  imageElement.setAttribute("crossorigin", "anonymous") 
-        //pour le bug       
-        // imageElement.setAttribute("alt", article[i].title);       
-        imageElement.alt = article[i].title;
-        figcaptionElement.textContent = article[i].title;
-        //DOM pour rattacher les éléments au html        
+        imageElement.setAttribute("crossorigin", "anonymous"); //(pour le bug)
+        imageElement.setAttribute("alt", article[i].title);
+        const trashIcon = document.createElement("i");
+        trashIcon.classList.add("fa-solid", "fa-trash", "icone", "trash");
+        const arrowMoveIcon = document.createElement("i");
+        arrowMoveIcon.classList.add("fa-solid", "fa-arrows-up-down-left-right", "icone", "arrow");
+        const figcaptionElement = document.createElement("figcaption");
+        figureElement.setAttribute("data-id", article[i].id);
+        //DOM pour rattacher les éléments au html
+        document.querySelector(".modale-gallery").appendChild(figureElement);
         figureElement.appendChild(imageElement);
         figureElement.appendChild(figcaptionElement);
-        galery.appendChild(figureElement);
+        figureElement.appendChild(trashIcon);
+        figureElement.appendChild(arrowMoveIcon);
     }
 };
 
@@ -185,36 +187,20 @@ const newImagePreview = document.getElementById("image-preview");
 const newObjetImage = document.getElementById("objet");
 const newTitleImage = document.getElementById("title-image");
 const validButton = document.getElementById("bouton-valider");
-
 //Fonction pour selectionner l'image
-let loadedFile = null;
-function filesManager(files) {
-    var file = files[0];
-
-    if (file) {
-        loadedFile = file;
-
-        // preview de l'image
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            var loadedImage = new Image();
-            loadedImage.src = e.target.result;
-            loadedImage.style.width = "129px";
-            loadedImage.style.height = "169px";
-
-            newImagePreview.innerHTML = "";
-            newImagePreview.appendChild(loadedImage);
-        };
-
-        reader.readAsDataURL(file);
-    } else {
-        loadedFile = null;
-        alert("Veuillez sélectionner un fichier image valide");
-    }
-}
-
 newImage.addEventListener("change", function () {
-    filesManager(newImage.files)
+    const selectedFile = newImage.files[0];
+    if (selectedFile) {
+        const imgUrl = URL.createObjectURL(selectedFile);
+        const img = document.createElement("img");
+        img.src = imgUrl;
+        newImagePreview.innerHTML = "";
+        newImagePreview.appendChild(img);
+        //supprime les autres éléments pour qu'il n'y ait que l'image
+        const sendImage = document.getElementsByClassName("send-image");
+        Array.from(sendImage).forEach(e => { e.style.display = "none" });
+        updateButtonColor();
+    }
 });
 
 //Fonction du changement de couleur du bouton valider quand image et titre sont présents
@@ -263,10 +249,10 @@ validButton.addEventListener("click", (e) => {
     updateButtonColor();
 
     //Création de formData pour envoyer les données de la nouvelle image
-    const formData = new FormData()
-    formData.append('image',loadedFile)
-    formData.append('title',newTitleImage.value)
-    formData.append('category',parseInt(newObjetImage.value))
+    const formData = new FormData();
+    formData.append("image", newImage.files[0]);
+    formData.append("title", newTitleImage.value);
+    formData.append("category", newObjetImage.value);
 
     fetch("http://localhost:5678/api/works", {
         method: "POST",
