@@ -1,5 +1,3 @@
-//code js de la page login.html
-
 //Création évènement connexion au moment du "click" avec la foncion "login"
 document.getElementById("connecter").addEventListener("click", () => { login() })
 

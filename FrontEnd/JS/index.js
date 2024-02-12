@@ -16,7 +16,7 @@ function createCard(article) {
         const figureElement = document.createElement("figure");
         const imageElement = document.createElement("img");
         imageElement.src = article[i].imageUrl;
-        imageElement.setAttribute("crossorigin", "anonymous") //pour le bug
+        imageElement.setAttribute("crossorigin", "anonymous") //évite bug lors d'un chargement d'un serveur tier
         imageElement.setAttribute("alt", article[i].title);
         const figcaptionElement = document.createElement("figcaption");
         figcaptionElement.innerText = article[i].title;
