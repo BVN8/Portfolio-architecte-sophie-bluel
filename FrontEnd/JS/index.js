@@ -328,12 +328,7 @@ function deleteImage(id) {
 
 //Fonction qui met à jour la galerie de manière dynamique à chaque ajout/suppression d'image
 function dynamicCard() {
-    fetch(`http://localhost:5678/api/works`)
-        .then((response) => {
-            if (response.ok) {
                 document.querySelector(".gallery").innerHTML = "";
                 document.querySelector(".modale-gallery").innerHTML = "";
                 fetchCard();
-            }
-        })
 };
