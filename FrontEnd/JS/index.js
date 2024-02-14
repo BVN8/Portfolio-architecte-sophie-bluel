@@ -9,7 +9,57 @@ async function fetchCard() {
 }
 fetchCard();
 
-
+//Fonction fetch qui envoie une requête pour récupèrer les catégories du backend via l'API
+let categories = []
+async function fetchCategorie() {
+    const response = await fetch("http://localhost:5678/api/categories");
+    categories = await response.json();
+    createCategorie(categories);
+}
+fetchCategorie();
+console.log(categories)
+function createCategorie(categories) {
+    for (let i = 0; i < categories.length; i++) {
+        const categorieElement = document.createElement("button");
+        categorieElement.classList.add("filtre");
+        categorieElement.id = `filter-btn-${categories[i].id}`;
+        categorieElement.innerText = categories[i].name;
+        categorieElement.value = categories[i].name;
+        //DOM pour rattacher les éléments au html
+        document.getElementById("filtre-liste").appendChild(categorieElement);
+        //Couleurs des boutons filtres par rapport au click de l'utilisateur
+        categorieElement.addEventListener("click", function (e) {
+            //Si le bouton est déjà sélectionné ne rien faire
+            if (e.target.classList.contains("filtre-selected")) {
+                return;
+            }
+            //Sinon ajouter la classe "filtre-selected" et retirer cette classe des autres boutons
+            else {
+                const boutons = document.querySelectorAll(".filtre");
+                for (let j = 0; j < boutons.length; j++) {
+                    boutons[j].classList.remove("filtre-selected");
+                };
+                e.target.classList.add("filtre-selected");
+                boutonFiltrer(e.target.value);
+            }
+        })
+    };
+}
+document.querySelector(".filtre").addEventListener("click", function (e) {
+    //Si le bouton est déjà sélectionné ne rien faire
+    if (e.target.classList.contains("filtre-selected")) {
+        return;
+    }
+    //Sinon ajouter la classe "filtre-selected" et retirer cette classe des autres boutons
+    else {
+        const boutons = document.querySelectorAll(".filtre");
+        for (let j = 0; j < boutons.length; j++) {
+            boutons[j].classList.remove("filtre-selected");
+        };
+        e.target.classList.add("filtre-selected");
+        boutonFiltrer(e.target.value);
+    }
+})
 //Fonction pour créer les cartes de la galerie et leur différentes caractéristiques
 function createCard(article) {
     for (let i = 0; i < article.length; i++) {
@@ -39,28 +89,6 @@ function boutonFiltrer(filter) {
     //Si le filtre est "tous", appel de la fonction createCard pour regénérer la galerie complète
     if (filter === "tous") { createCard(photoFiltre) };
 };
-
-//Couleurs des boutons filtres par rapport au click de l'utilisateur
-const filtre = document.querySelectorAll(".filtre");
-for (let i = 0; i < filtre.length; i++) {
-    const element = filtre[i];
-    element.addEventListener("click", function (e) {
-        //Si le bouton est déjà sélectionné ne rien faire
-        if (e.target.classList.contains("filtre-selected")) {
-            return;
-        }
-        //Sinon ajouter la classe "filtre-selected" et retirer cette classe des autres boutons
-        else {
-            const boutons = document.querySelectorAll(".filtre");
-            for (let j = 0; j < boutons.length; j++) {
-                boutons[j].classList.remove("filtre-selected");
-            };
-            e.target.classList.add("filtre-selected");
-            boutonFiltrer(e.target.value);
-        }
-    })
-};
-
 
 //Création évènement "click" sur loginLink ("login")
 const loginLink = document.getElementById("login-link");
@@ -328,7 +356,7 @@ function deleteImage(id) {
 
 //Fonction qui met à jour la galerie de manière dynamique à chaque ajout/suppression d'image
 function dynamicCard() {
-                document.querySelector(".gallery").innerHTML = "";
-                document.querySelector(".modale-gallery").innerHTML = "";
-                fetchCard();
+    document.querySelector(".gallery").innerHTML = "";
+    document.querySelector(".modale-gallery").innerHTML = "";
+    fetchCard();
 };
